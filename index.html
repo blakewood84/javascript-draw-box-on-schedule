@@ -1,0 +1,170 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <style>
+        * {
+            margin: 0px;
+            padding: 0px;
+            box-sizing: border-box;
+        }
+        #canvas {
+            border: 1px solid black;
+            background-color: transparent;
+            _z-index: -2;
+        }
+        table {z-index: 1; user-select: none;}
+        table thead tr th { width: 150px; padding: 5px; border: 1px solid black;}
+
+        table tbody tr td { text-align: center; height: 80px;width: 150px; padding: 5px; border-left: 1px solid black; border-right: 1px solid black; border-bottom: 1px solid black;}
+    </style>
+    <script src="js//jquery-3.5.1.slim.min.js"></script>
+</head>
+<body>
+    <table cellspacing="0">
+        <thead>
+            <tr row="0">
+                <th scope="col">Technician Name</th>
+                <th scope="col">7AM</th>
+                <th scope="col">8AM</th>
+                <th scope="col">9AM</th>
+                <th scope="col">10AM</th>
+                <th scope="col">11AM</th>
+                <th scope="col">12PM</th>
+                <th scope="col">1PM</th>
+                <th scope="col">2PM</th>
+                <th scope="col">3PM</th>
+                <th scope="col">4PM</th>
+                <th scope="col">5PM</th>
+                <th scope="col">6PM</th>
+            </tr>
+        </thead>
+        
+        <tbody>
+            <tr rowtype="tech-row" data-rowname="Tech Yahweh" data-row="1">
+                <td data-celltype="name" data-timeframe="0">Tech Yahweh</td>
+                <td data-celltype="time" data-timeframe="7AM">7AM</td>
+                <td data-celltype="time" data-timeframe="8AM">8AM</td>
+                <td data-celltype="time" data-timeframe="9AM">9AM</td>
+                <td data-celltype="time" data-timeframe="10AM">10AM</td>
+                <td data-celltype="time" data-timeframe="11AM">11AM</td>
+                <td data-celltype="time" data-timeframe="12PM">12PM</td>
+                <td data-celltype="time" data-timeframe="1PM">1PM</td>
+                <td data-celltype="time" data-timeframe="2PM">2PM</td>
+                <td data-celltype="time" data-timeframe="3PM">3PM</td>
+                <td data-celltype="time" data-timeframe="4PM">4PM</td>
+                <td data-celltype="time" data-timeframe="5PM">5PM</td>
+                <td data-celltype="time" data-timeframe="6PM">6PM</td>
+            </tr>
+            <tr rowtype="tech-row" data-rowname="Tech Mathew" data-row="2">
+                <td data-celltype="name" data-timeframe="0">Tech Mathew</td>
+                <td data-celltype="time" data-timeframe="7AM">7AM</td>
+                <td data-celltype="time" data-timeframe="8AM">8AM</td>
+                <td data-celltype="time" data-timeframe="9AM">9AM</td>
+                <td data-celltype="time" data-timeframe="10AM">10AM</td>
+                <td data-celltype="time" data-timeframe="11AM">11AM</td>
+                <td data-celltype="time" data-timeframe="12PM">12PM</td>
+                <td data-celltype="time" data-timeframe="1PM">1PM</td>
+                <td data-celltype="time" data-timeframe="2PM">2PM</td>
+                <td data-celltype="time" data-timeframe="3PM">3PM</td>
+                <td data-celltype="time" data-timeframe="4PM">4PM</td>
+                <td data-celltype="time" data-timeframe="5PM">5PM</td>
+                <td data-celltype="time" data-timeframe="6PM">6PM</td>
+            </tr>
+            <tr rowtype="tech-row" data-rowname="Tech Jesus" data-row="3">
+                <td data-celltype="name" data-timeframe="0">Tech Jesus</td>
+                <td data-celltype="time" data-timeframe="7AM">7AM</td>
+                <td data-celltype="time" data-timeframe="8AM">8AM</td>
+                <td data-celltype="time" data-timeframe="9AM">9AM</td>
+                <td data-celltype="time" data-timeframe="10AM">10AM</td>
+                <td data-celltype="time" data-timeframe="11AM">11AM</td>
+                <td data-celltype="time" data-timeframe="12AM">12PM</td>
+                <td data-celltype="time" data-timeframe="1PM">1PM</td>
+                <td data-celltype="time" data-timeframe="2PM">2PM</td>
+                <td data-celltype="time" data-timeframe="3PM">3PM</td>
+                <td data-celltype="time" data-timeframe="4PM">4PM</td>
+                <td data-celltype="time" data-timeframe="5PM">5PM</td>
+                <td data-celltype="time" data-timeframe="6PM">6PM</td>
+            </tr>
+        </tbody>
+    </table>
+ <script type="text/javascript">
+
+    let rect = {}; let row = ""; let drag = false; let startTime = ""; let endTime = "";
+    const table = $('table');
+
+    // Create Draw Box
+    const box = document.createElement('div');
+    box.setAttribute('class', 'box');
+    box.style.backgroundColor = 'rgba(139, 199, 240, 0.568)';
+    box.style.border = '1px solid black';
+    box.style.position = 'absolute';
+
+    // Attach Events to Rows
+    $('tr[rowtype="tech-row"]').mousedown(function() {
+        let $row = $(this);
+        mouseDown(event, $row);
+        // console.log("ROW: " + $row.data('rowname'));
+    });
+    $('tr[rowtype="tech-row"]').mouseup(function() {
+        let $row = $(this);
+        mouseUp(event, $row);
+    });
+    $('tr[rowtype="tech-row"]').mousemove(function() {
+        let $row = $(this);
+        mouseMove(event, $row);
+    });
+    
+    const mouseDown = (event, $row) => {
+        drag = true;
+        row = $row.data('rowname');
+
+        let cell = $(event.target);
+        timeStart = cell.data('timeframe');
+
+        rect.startX = event.pageX - table.offset().left;
+        rect.startY = event.pageY - table.offset().top;
+
+        box.style.left = rect.startX + "px";
+        box.style.top = rect.startY + "px";
+        
+        $('body').append(box);
+    }
+
+    const resetBox = () => {
+        $('.box').css("width", "0px");
+        $('.box').css("height", "0px");
+        $('.box').css("top", "0px");
+        $('.box').css("left", "0px");
+        $('.box').remove();
+    }
+
+    const mouseUp = (event, $row) => {
+        drag = false;
+
+        let cell = $(event.target);
+        timeEnd = cell.data('timeframe');
+        
+        resetBox();
+
+        alert(`Row Name: ${$row.data('rowname')} | Row # ${$row.data('row')} | Time: from ${timeStart} to ${timeEnd}`);
+
+    }
+
+    const mouseMove = (event, $row) => {
+        if(drag) {
+            rect.w = (event.pageX - table.offset().left) - rect.startX;
+            rect.h = (event.pageY - table.offset().top) - rect.startY;
+            box.style.width = rect.w + "px";
+            box.style.height = rect.h + "px";
+        }
+    }
+
+</script>
+
+    
+</body>
+</html>
